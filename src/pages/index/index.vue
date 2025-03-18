@@ -1,7 +1,11 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
 
-const calendar = ref()
+const calendar = ref({
+  cale: {
+    date: null,
+  },
+})
 const calendarData = ref<any[]>([])
 const calendarPopup = ref()
 const currentSelectedDate = ref<any>()
@@ -16,7 +20,13 @@ const nowMinutes = nowDate.getMinutes()
 const hours = ref(Array.from({ length: 24 }, (_, i) => String(i).padStart(2, '0')))
 const minutes = ref(Array.from({ length: 60 }, (_, i) => String(i).padStart(2, '0')))
 
-const pickerViewData = ref([nowHours, ':', nowMinutes])
+const pickerMid = ref({
+  0: ':',
+})
+const pickerViewData = ref([nowHours, pickerMid.value[0], nowMinutes])
+const pickerData = ref()
+
+const table = ref()
 
 function isVueRef(ref: any): ref is { value: any } {
   return typeof ref === 'object' && 'value' in ref
@@ -61,6 +71,7 @@ function selecteDate(dateData: any) {
   console.log('calendar.value.cale.date', calendar.value)
 
   currentSelectedDate.value = dateData
+
   // console.log(calendar.value)
   togglePopup(calendarPopup, true)
 }
@@ -72,21 +83,32 @@ function addDate(dateData: any) {
     accountData.value[year] = { visitCount: 0 }
   }
   if (!accountData.value[year][month]) {
-    accountData.value[year][month] = { days: {}, visitCount: 0 }
+    accountData.value[year][month] = { visitCount: 0 }
   }
-  if (!accountData.value[year][month].days[day]) {
-    accountData.value[year][month].days[day] = []
+  if (!accountData.value[year][month][day]) {
+    accountData.value[year][month][day] = { visitCount: 0, time: [] }
   }
-  calendarData.value.push({ date: fulldate, info: '已签到' })
   accountData.value[year].visitCount++
   accountData.value[year][month].visitCount++
-  accountData.value[year][month].days[day].push({ time: pickerViewData.value.join('') })
+  accountData.value[year][month][day].visitCount++
+  accountData.value[year][month][day].time.push({ time: pickerData.value.join('') })
+  if (!calendarData.value.find((item: any) => item.date === fulldate)) {
+    calendarData.value.push({ date: fulldate, info: `${accountData.value[year][month][day].visitCount} 次` })
+  }
+  else {
+    calendarData.value = calendarData.value.map((item: any) => {
+      if (item.date === fulldate) {
+        item.info = `${accountData.value[year][month][day].visitCount} 次`
+      }
+      return item
+    })
+  }
   console.log(accountData.value[year])
 
   setLocalStorage()
 }
 
-function deleteDate(dateData: any) {
+function deleteDate(dateData: any, index: number) {
   const { year, month, fulldate, date: day } = isVueRef(dateData) ? dateData.value : dateData
 
   // 删除 calendarData 中的数据
@@ -94,14 +116,27 @@ function deleteDate(dateData: any) {
 
   // 删除 accountData 中的数据
   if (accountData.value[year] && accountData.value[year][month]) {
-    if (accountData.value[year][month].days[day]) {
-      delete accountData.value[year][month].days[day]
-      accountData.value[year][month].visitCount--
+    if (accountData.value[year][month][day]) {
       accountData.value[year].visitCount--
+      accountData.value[year][month].visitCount--
+      accountData.value[year][month][day].visitCount--
+      accountData.value[year][month][day].time.splice(index, 1)
     }
+  }
+  if(accountData.value[year][month][day].time.length!=0){
+    calendarData.value.push({ date: fulldate, info: `${accountData.value[year][month][day].visitCount} 次` })
   }
   togglePopup(calendarPopup, false)
   setLocalStorage()
+}
+
+function pickerChange(e: any) {
+  // console.log(pickerViewData.value)
+
+  pickerData.value = e.detail.value
+  pickerData.value[0] = pickerData.value[0]?.toString()
+  pickerData.value[1] = ':'
+  pickerData.value[2] = pickerData.value[2]?.toString().padStart(2, '0')
 }
 
 async function loadStorageData() {
@@ -116,102 +151,153 @@ async function loadStorageData() {
   }
 }
 
-watch(
-  () => calendar.value?.cale.date,
-  (newVal) => {
-    console.log('calendarRefData', newVal)
-
-    calendarRefData.value = newVal
-  },
-  {deep: true,}
-)
 // watch(
-//   calendar,
+//   () => calendar.value?.cale?.selectDate,
 //   (newVal) => {
 //     console.log('calendarRefData', newVal)
+//     calendarRefData.value = newVal
 //   },
+//   { deep: true },
 // )
 
 onMounted(() => {
   loadStorageData()
-  calendarRefData.value = calendar.value?.cale?.date
+  currentSelectedDate.value = calendar.value?.cale?.selectDate
+  currentSelectedDate.value.fulldate = currentSelectedDate.value.fullDate
+  delete currentSelectedDate.value.fullDate
+  
+  // 手动触发 watch 函数
+  setInterval(() => {
+    calendarRefData.value = calendar.value?.cale?.selectDate
+  }, 200)
 })
 </script>
 
 <template>
   <view>
+    <!-- 日历 -->
     <uni-calendar ref="calendar" :selected="calendarData" @change="selecteDate" />
-    <view class="mx-auto columns-2 text-center">
-      <view>
-        月累计
-        <view>
+    <!-- 今日次数 -->
+    <uni-section title="今日次数" type="line" />
+    <!-- 表格 -->
+    <uni-table ref="table" border stripe emptyText="暂无更多数据">
+      <uni-tr>
+        <uni-th width="150" align="center">
+          时间
+        </uni-th>
+        <uni-th width="50" align="center">
+          选项
+        </uni-th>
+      </uni-tr>
+      <uni-tr v-for="(item, index) in accountData[currentSelectedDate?.year]?.[currentSelectedDate?.month]?.[currentSelectedDate?.date]?.time" :key="index">
+        <uni-td class="text-center">
+          {{ item.time }}
+        </uni-td>
+        <uni-td>
+          <button class="mx-auto" plain size="mini" type="warn" @click="deleteDate(currentSelectedDate, index)">
+            删除
+          </button>
+        </uni-td>
+      </uni-tr>
+    </uni-table>
+    <!-- 数据累计 -->
+    <uni-section title="数据累计" type="line" />
+    <view class="flex place-content-center pb-10 pt-5 text-center">
+      <view class="date-total">
+        <view id="monthTotal">
           {{ accountData[calendarRefData?.year]?.[calendarRefData?.month]?.visitCount || 0 }}
         </view>
+        <text>月累计</text>
       </view>
-      <view>
-        年累计
-        <view>
+      <view class="border border-black border-opacity-10" />
+      <view class="date-total">
+        <view id="yaerTotal">
           {{ accountData[calendarRefData?.year]?.visitCount || 0 }}
         </view>
+        <text class="">年累计</text>
       </view>
     </view>
+    <!-- 弹出框 -->
     <uni-popup
       ref="calendarPopup"
       type="bottom"
       background-color="#fff"
       borderRadius="20px 20px 0 0"
       class="popup"
+      immediate-change="false"
     >
       <picker-view
         :value="pickerViewData"
         indicator-style="height: 100rpx;"
-        class="pickerView"
+        class="picker-view"
+        @change="pickerChange"
       >
         <picker-view-column>
-          <view v-for="(hour, index) in hours" :key="index" class="pickerItem">
+          <view v-for="(hour, index) in hours" :key="index" class="picker-item">
             {{ hour }}
           </view>
         </picker-view-column>
         <picker-view-column>
-          <view class="pickerItem">
-            ：
+          <view class="picker-item">
+            :
           </view>
         </picker-view-column>
         <picker-view-column>
-          <view v-for="(minute, index) in minutes" :key="index" class="pickerItem">
+          <view v-for="(minute, index) in minutes" :key="index" class="picker-item">
             {{ minute }}
           </view>
         </picker-view-column>
       </picker-view>
-      <view class="popupContainer ">
-        <view class="flex justify-start">
-          <button size="mini" @click="deleteDate(currentSelectedDate)">
-            删除
-          </button>
-          <button size="mini" @click="addDate(currentSelectedDate)">
-            确定
-          </button>
-        </view>
+      <view class="mx-auto w-1/3 pt-4 text-center">
+        <button @click="addDate(currentSelectedDate)">
+          确定
+        </button>
       </view>
     </uni-popup>
   </view>
 </template>
 
 <style scoped>
-.pickerView {
+.picker-view {
   width: 320rpx;
   height: 320rpx;
   margin-top: 30rpx;
   @apply text-center mx-auto;
 }
 
-.pickerItem {
+.picker-item {
   line-height: 60rpx;
   text-align: center;
   @apply text-center mx-auto;
 }
 
-.popupContainer {
+.popup-container {
   @apply px-2 py-6;
+}
+.date-total {
+  @apply m-auto w-20 rounded-md py-2 shadow-sm ring-2 ring-lime-500;
+  text {
+    @apply overline decoration-lime-500;
+  }
+}
+
+:deep(.uni-calendar-item--extra) {
+  @apply text-lime-500 !important;
+}
+
+:deep(.uni-section-header__decoration) {
+  @apply bg-lime-500 !important;
+}
+
+:deep(.uni-calendar-item__weeks-box-circle) {
+  @apply bg-lime-500 !important;
+}
+
+:deep(.uni-calendar-item--isDay) {
+  @apply bg-sky-500 !important;
+}
+
+:deep(.uni-table-td) {
+  @apply align-middle text-center !important;
 }
 </style>
