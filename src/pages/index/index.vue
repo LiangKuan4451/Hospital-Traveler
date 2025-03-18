@@ -26,6 +26,9 @@ const pickerMid = ref({
 const pickerViewData = ref([nowHours, pickerMid.value[0], nowMinutes])
 const pickerData = ref()
 
+const message = ref()
+const messageText =ref()
+
 const table = ref()
 
 function isVueRef(ref: any): ref is { value: any } {
@@ -79,6 +82,9 @@ function selecteDate(dateData: any) {
 function addDate(dateData: any) {
   console.log('addDate', dateData)
   const { year, month, fulldate, date: day } = isVueRef(dateData) ? dateData.value : dateData
+
+
+ 
   if (!accountData.value[year]) {
     accountData.value[year] = { visitCount: 0 }
   }
@@ -88,10 +94,19 @@ function addDate(dateData: any) {
   if (!accountData.value[year][month][day]) {
     accountData.value[year][month][day] = { visitCount: 0, time: [] }
   }
-  accountData.value[year].visitCount++
-  accountData.value[year][month].visitCount++
-  accountData.value[year][month][day].visitCount++
-  accountData.value[year][month][day].time.push({ time: pickerData.value.join('') })
+  if(!accountData.value[year][month][day]?.time?.some((item : any) => item.time)){
+    accountData.value[year].visitCount++
+    accountData.value[year][month].visitCount++
+    accountData.value[year][month][day].visitCount++
+    accountData.value[year][month][day].time.push({ time: pickerData.value.join('') })
+    
+  }
+  else{
+    togglePopup(message,true)
+    messageText.value='已经有相同时间了！'
+    return
+  }
+
   if (!calendarData.value.find((item: any) => item.date === fulldate)) {
     calendarData.value.push({ date: fulldate, info: `${accountData.value[year][month][day].visitCount} 次` })
   }
@@ -209,7 +224,6 @@ onMounted(() => {
         </view>
         <text>月累计</text>
       </view>
-      <view class="border border-black border-opacity-10" />
       <view class="date-total">
         <view id="yaerTotal">
           {{ accountData[calendarRefData?.year]?.visitCount || 0 }}
@@ -217,13 +231,12 @@ onMounted(() => {
         <text class="">年累计</text>
       </view>
     </view>
-    <!-- 弹出框 -->
+    <!-- 添加日期弹出框 -->
     <uni-popup
       ref="calendarPopup"
       type="bottom"
       background-color="#fff"
       borderRadius="20px 20px 0 0"
-      class="popup"
       immediate-change="false"
     >
       <picker-view
@@ -249,11 +262,15 @@ onMounted(() => {
         </picker-view-column>
       </picker-view>
       <view class="mx-auto w-1/3 pt-4 text-center">
-        <button @click="addDate(currentSelectedDate)">
+        <button class="mx-auto" plain size="mini" @click="addDate(currentSelectedDate)">
           确定
         </button>
       </view>
     </uni-popup>
+    <!-- 提示信息弹窗 -->
+			<uni-popup ref="message" type="message">
+				<uni-popup-message type="warn" :message="messageText" :duration="2000"></uni-popup-message>
+			</uni-popup>
   </view>
 </template>
 

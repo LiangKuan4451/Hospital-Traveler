@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import calendar from '@/components/uni_modules/uni-calendar/components/uni-calendar/calendar'
 import uniPopupDialog from '@/components/uni_modules/uni-popup/components/uni-popup-dialog/uni-popup-dialog.vue'
 import { ref } from 'vue'
 
@@ -33,12 +34,13 @@ function reloadPage() {
 }
 
 function clearData() {
-  uni.removeStorage({
-    key: 'calendarData',
-    success() {
-      console.log('success')
-      reloadPage()
-    },
+  const storageTasks= [
+    uni.removeStorage({key:'calendarData'}),
+    uni.removeStorage({key:'accountData'})
+  ]
+
+  Promise.all(storageTasks).then(()=>{
+    reloadPage()
   })
 }
 </script>
