@@ -94,7 +94,9 @@ function addDate(dateData: any) {
   if (!accountData.value[year][month][day]) {
     accountData.value[year][month][day] = { visitCount: 0, time: [] }
   }
-  if(!accountData.value[year][month][day]?.time?.some((item : any) => item.time)){
+  if(!accountData.value[year][month][day]?.time?.some((item : any) => item.time === pickerData.value.join(''))){
+    console.log(pickerData.value);
+    
     accountData.value[year].visitCount++
     accountData.value[year][month].visitCount++
     accountData.value[year][month][day].visitCount++
