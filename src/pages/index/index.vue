@@ -27,7 +27,7 @@ const pickerViewData = ref([nowHours, pickerMid.value[0], nowMinutes])
 const pickerData = ref()
 
 const message = ref()
-const messageText =ref()
+const messageText = ref()
 
 const table = ref()
 
@@ -83,8 +83,14 @@ function addDate(dateData: any) {
   console.log('addDate', dateData)
   const { year, month, fulldate, date: day } = isVueRef(dateData) ? dateData.value : dateData
 
+  console.log('Parsed dateData:', { year, month, fulldate, day })
+  console.log('Current accountData:', accountData.value)
 
- 
+  if (!year || !month || !day) {
+    console.error('Invalid dateData:', { year, month, day })
+    return
+  }
+
   if (!accountData.value[year]) {
     accountData.value[year] = { visitCount: 0 }
   }
@@ -94,18 +100,15 @@ function addDate(dateData: any) {
   if (!accountData.value[year][month][day]) {
     accountData.value[year][month][day] = { visitCount: 0, time: [] }
   }
-  if(!accountData.value[year][month][day]?.time?.some((item : any) => item.time === pickerData.value.join(''))){
-    console.log(pickerData.value);
-    
+  if (!accountData.value[year][month][day]?.time?.some((item: any) => item.time === pickerData.value.join(''))) {
     accountData.value[year].visitCount++
     accountData.value[year][month].visitCount++
     accountData.value[year][month][day].visitCount++
     accountData.value[year][month][day].time.push({ time: pickerData.value.join('') })
-    
   }
-  else{
-    togglePopup(message,true)
-    messageText.value='已经有相同时间了！'
+  else {
+    togglePopup(message, true)
+    messageText.value = '已经有相同时间了！'
     return
   }
 
@@ -120,7 +123,7 @@ function addDate(dateData: any) {
       return item
     })
   }
-  console.log(accountData.value[year])
+  console.log('Updated accountData:', accountData.value[year])
 
   setLocalStorage()
 }
@@ -140,7 +143,7 @@ function deleteDate(dateData: any, index: number) {
       accountData.value[year][month][day].time.splice(index, 1)
     }
   }
-  if(accountData.value[year][month][day].time.length!=0){
+  if (accountData.value[year][month][day].time.length != 0) {
     calendarData.value.push({ date: fulldate, info: `${accountData.value[year][month][day].visitCount} 次` })
   }
   togglePopup(calendarPopup, false)
@@ -182,7 +185,7 @@ onMounted(() => {
   currentSelectedDate.value = calendar.value?.cale?.selectDate
   currentSelectedDate.value.fulldate = currentSelectedDate.value.fullDate
   delete currentSelectedDate.value.fullDate
-  
+  pickerData.value = pickerViewData.value
   // 手动触发 watch 函数
   setInterval(() => {
     calendarRefData.value = calendar.value?.cale?.selectDate
@@ -270,9 +273,9 @@ onMounted(() => {
       </view>
     </uni-popup>
     <!-- 提示信息弹窗 -->
-			<uni-popup ref="message" type="message">
-				<uni-popup-message type="warn" :message="messageText" :duration="2000"></uni-popup-message>
-			</uni-popup>
+    <uni-popup ref="message" type="message">
+      <uni-popup-message type="warn" :message="messageText" :duration="2000" />
+    </uni-popup>
   </view>
 </template>
 
