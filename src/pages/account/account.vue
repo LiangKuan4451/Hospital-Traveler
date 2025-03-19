@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import calendar from '@/components/uni_modules/uni-calendar/components/uni-calendar/calendar'
 import uniPopupDialog from '@/components/uni_modules/uni-popup/components/uni-popup-dialog/uni-popup-dialog.vue'
 import { ref } from 'vue'
 
@@ -27,6 +26,21 @@ function popupAction(ref: any, Boolean: boolean) {
   }
 }
 
+function selectFile() {
+  const storageTasks = [
+    uni.getStorage({ key: 'calendarData' }),
+    uni.getStorage({ key: 'accountData' }),
+  ]
+
+  Promise.all(storageTasks).then((res) => {
+    console.log(res)
+    const fileData = {
+      calendarData: res[0].data,
+      accountData: res[1].data,
+    }
+  })
+}
+
 function reloadPage() {
   uni.reLaunch({
     url: '/pages/index/index',
@@ -34,21 +48,27 @@ function reloadPage() {
 }
 
 function clearData() {
-  const storageTasks= [
-    uni.removeStorage({key:'calendarData'}),
-    uni.removeStorage({key:'accountData'})
+  const storageTasks = [
+    uni.removeStorage({ key: 'calendarData' }),
+    uni.removeStorage({ key: 'accountData' }),
   ]
 
-  Promise.all(storageTasks).then(()=>{
+  Promise.all(storageTasks).then(() => {
     reloadPage()
   })
 }
 </script>
 
 <template>
-  <view>
-    <button @click="deleteDialog.open">
+  <view class="button-list mx-auto w-3/4">
+    <button plain @click="deleteDialog.open">
       清除数据
+    </button>
+    <button plain @click="deleteDialog.open">
+      导出数据
+    </button>
+    <button plain @click="selectFile">
+      导入数据
     </button>
   </view>
   <uni-popup
@@ -63,5 +83,9 @@ function clearData() {
 </template>
 
 <style scoped>
-
+.button-list {
+  button {
+    @apply my-4;
+  }
+}
 </style>

@@ -8,8 +8,9 @@ const calendar = ref({
 })
 const calendarData = ref<any[]>([])
 const calendarPopup = ref()
-const currentSelectedDate = ref<any>()
 const calendarRefData = ref<any>()
+const calendarPopupInput = ref()
+const currentSelectedDate = ref<any>()
 
 const accountData = ref<any>({})
 
@@ -30,6 +31,11 @@ const message = ref()
 const messageText = ref()
 
 const table = ref()
+const tableThOption = ref([
+  { title: '医院' },
+  { title: '时间' },
+  { title: '选项' },
+])
 
 function isVueRef(ref: any): ref is { value: any } {
   return typeof ref === 'object' && 'value' in ref
@@ -104,7 +110,7 @@ function addDate(dateData: any) {
     accountData.value[year].visitCount++
     accountData.value[year][month].visitCount++
     accountData.value[year][month][day].visitCount++
-    accountData.value[year][month][day].time.push({ time: pickerData.value.join('') })
+    accountData.value[year][month][day].time.push({ time: pickerData.value.join(''), hospitalInfo: calendarPopupInput.value })
   }
   else {
     togglePopup(message, true)
@@ -143,7 +149,7 @@ function deleteDate(dateData: any, index: number) {
       accountData.value[year][month][day].time.splice(index, 1)
     }
   }
-  if (accountData.value[year][month][day].time.length != 0) {
+  if (accountData.value[year][month][day].time.length !== 0) {
     calendarData.value.push({ date: fulldate, info: `${accountData.value[year][month][day].visitCount} 次` })
   }
   togglePopup(calendarPopup, false)
@@ -202,14 +208,14 @@ onMounted(() => {
     <!-- 表格 -->
     <uni-table ref="table" border stripe emptyText="暂无更多数据">
       <uni-tr>
-        <uni-th width="150" align="center">
-          时间
-        </uni-th>
-        <uni-th width="50" align="center">
-          选项
+        <uni-th v-for="(item, index) in tableThOption" :key="index" :width="index === 2 ? '90px' : 'auto'" align="center">
+          {{ item.title }}
         </uni-th>
       </uni-tr>
       <uni-tr v-for="(item, index) in accountData[currentSelectedDate?.year]?.[currentSelectedDate?.month]?.[currentSelectedDate?.date]?.time" :key="index">
+        <uni-td class="text-center">
+          {{ item.hospitalInfo }}
+        </uni-td>
         <uni-td class="text-center">
           {{ item.time }}
         </uni-td>
@@ -244,6 +250,17 @@ onMounted(() => {
       borderRadius="20px 20px 0 0"
       immediate-change="false"
     >
+      <uni-section title="医院" type="line" />
+      <view class="mx-auto w-4/5">
+        <input
+          v-model="calendarPopupInput"
+          placeholder="输入医院名称、科室"
+          placeholder-class="input-placeholder"
+          class="focus:border focus:border-lime-500"
+        >
+      </view>
+      <!-- 日期选择器 -->
+      <uni-section title="日期" type="line" />
       <picker-view
         :value="pickerViewData"
         indicator-style="height: 100rpx;"
@@ -266,7 +283,7 @@ onMounted(() => {
           </view>
         </picker-view-column>
       </picker-view>
-      <view class="mx-auto w-1/3 pt-4 text-center">
+      <view class="mx-auto w-1/3 pb-4 pt-6 text-center">
         <button class="mx-auto" plain size="mini" @click="addDate(currentSelectedDate)">
           确定
         </button>
@@ -301,6 +318,10 @@ onMounted(() => {
   text {
     @apply overline decoration-lime-500;
   }
+}
+
+:deep(.uni-popup__wrapper) {
+  @apply pt-5 !important;
 }
 
 :deep(.uni-calendar-item--extra) {
