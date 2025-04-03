@@ -45,7 +45,7 @@ jobs:
           ./gradlew assembleRelease # 或 assembleDebug
 
       # 7. 签名 APK（可选，需配置 Secrets）
-      - name: Sign APK
+      - name: test
         if: secrets.KEYSTORE_BASE64 && secrets.KEYSTORE_PASSWORD
         run: |
           echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 --decode > your.keystore
