@@ -1,0 +1,64 @@
+name: Uniapp Android Build
+
+on:
+  push:
+    branches: [ "main" ] # 触发分支
+  workflow_dispatch: # 允许手动触发
+
+jobs:
+  build-android:
+    runs-on: ubuntu-latest # 使用 Ubuntu 环境
+
+    steps:
+      # 1. 检出代码
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      # 2. 安装 Node.js（Uniapp 依赖）
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18' # 根据项目需求调整版本
+
+      # 3. 安装项目依赖（如 npm/yarn）
+      - name: Install Dependencies
+        run: npm install # 或 yarn install
+
+      # 4. 安装 HBuilderX CLI（关键步骤）
+      - name: Install HBuilderX CLI
+        run: |
+          wget https://download1.dcloud.net.cn/download/HBuilderX.zip -O HBuilderX.zip
+          unzip HBuilderX.zip -d HBuilderX
+          chmod +x HBuilderX/cli
+
+      # 5. 执行 Uniapp 打包（生成 Android 工程）
+      - name: Build Uniapp Android Project
+        run: |
+          ./HBuilderX/cli package --platform android --project ./
+          # 打包后的文件通常在 `/unpackage/dist/build/android` 目录下
+
+      # 6. 编译 APK（使用 Gradle）
+      - name: Build APK with Gradle
+        run: |
+          cd unpackage/dist/build/android
+          chmod +x gradlew
+          ./gradlew assembleRelease # 或 assembleDebug
+
+      # 7. 签名 APK（可选，需配置 Secrets）
+      - name: Sign APK
+        if: secrets.KEYSTORE_BASE64 && secrets.KEYSTORE_PASSWORD
+        run: |
+          echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 --decode > your.keystore
+          jarsigner -verbose -sigalg SHA256withRSA -digestalg SHA-256 \
+            -keystore your.keystore \
+            -storepass "${{ secrets.KEYSTORE_PASSWORD }}" \
+            -keypass "${{ secrets.KEY_ALIAS_PASSWORD }}" \
+            unpackage/dist/build/android/app/build/outputs/apk/release/app-release-unsigned.apk \
+            "${{ secrets.KEY_ALIAS }}"
+
+      # 8. 上传 APK 产物
+      - name: Upload APK Artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: android-apk
+          path: unpackage/dist/build/android/app/build/outputs/apk/release/*.apk
