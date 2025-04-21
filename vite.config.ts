@@ -5,7 +5,6 @@ import { defineConfig } from 'vite'
 import { UnifiedViteWeappTailwindcssPlugin as uvtw } from 'weapp-tailwindcss/vite'
 import { WeappTailwindcssDisabled } from './platform'
 import postcssPlugins from './postcss.config'
-
 // https://vitejs.dev/config/
 export default defineConfig({
   // uvtw 一定要放在 uni 后面
@@ -26,6 +25,7 @@ export default defineConfig({
         enabled: true,
       },
     }),
+
   ],
   // 内联 postcss 注册 tailwindcss
   css: {

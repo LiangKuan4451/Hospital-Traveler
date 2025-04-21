@@ -15,6 +15,39 @@ onHide(() => {
 @use 'tailwindcss/components';
 @use 'tailwindcss/utilities';
 
+body {
+  @apply bg-green-100;
+}
+
+.status-bar {
+  height: var(--status-bar-height);
+  width: 100%;
+}
+
+:deep(.uni-section-header) {
+  @apply text-sm px-4 !important;
+}
+
+:deep(.uni-calendar-item--extra) {
+  @apply text-green-500 !important;
+}
+
+:deep(.uni-section-header__decoration) {
+  @apply bg-green-500 !important;
+}
+
+:deep(.uni-calendar-item__weeks-box-circle) {
+  @apply bg-green-500 !important;
+}
+
+:deep(.uni-calendar-item--checked) {
+  @apply rounded-sm !important;
+}
+
+:deep(.uni-calendar-item--isDay) {
+  @apply rounded-sm !important;
+}
+
 /*  #ifdef  H5  */
 svg {
   display: initial;
