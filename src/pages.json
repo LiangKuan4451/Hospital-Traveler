@@ -12,17 +12,18 @@
       "path": "pages/account/account"
     },
     {
-      "path": "pages/summery/summery",
-      "style": {
-        "navigationBarTitleText": "记录本"
-      }
+      "path": "pages/summery/summery"
     },
     {
-      "path": "pages/index/index",
-      "style": {
-        "navigationBarTitleText": "个人中心"
-      }
+      "path": "pages/index/index"
+    },
+    {
+      "path": "pages/manage/dataManage"
+    },
+    {
+      "path": "pages/manage/selectManage"
     }
+
   ],
   "globalStyle": {
     "navigationStyle": "custom",

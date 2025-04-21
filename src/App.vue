@@ -15,10 +15,6 @@ onHide(() => {
 @use 'tailwindcss/components';
 @use 'tailwindcss/utilities';
 
-body {
-  @apply bg-green-100;
-}
-
 .status-bar {
   height: var(--status-bar-height);
   width: 100%;

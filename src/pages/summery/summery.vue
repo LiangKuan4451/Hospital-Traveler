@@ -140,7 +140,7 @@ onMounted(() => {
 }
 
 .card-icon {
-  @apply absolute right-2 top-2 opacity-10 text-3xl;
+  @apply absolute right-2 top-2 opacity-10 text-4xl;
 }
 
 .card-content {
@@ -148,15 +148,15 @@ onMounted(() => {
 }
 
 .card-label {
-  @apply text-sm text-gray-500 mb-1;
+  @apply text-base text-gray-500 mb-1;
 }
 
 .card-value {
-  @apply text-xl font-bold text-gray-800;
+  @apply text-2xl font-bold text-gray-800;
 }
 
 .card-unit {
-  @apply text-xs text-gray-500 ml-1;
+  @apply text-sm text-gray-500;
 }
 
 .chart-container {
