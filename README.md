@@ -16,6 +16,6 @@
 # 项目截图
 
 
-!["主页截图"](./public/image/index.jpg)
-!["统计截图"](./public/image/summary.jpg)
-!["个人中心截图"](./public/image/account.jpg)
+!["主页截图"](public/image/index.jpg)
+!["统计截图"](public/image/summary.jpg)
+!["个人中心截图"](public/image/account.jpg)
