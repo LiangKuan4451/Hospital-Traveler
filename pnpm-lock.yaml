@@ -83,6 +83,9 @@ importers:
       stylelint:
         specifier: ^16.13.0
         version: 16.18.0(typescript@5.8.3)
+      utf8:
+        specifier: ^3.0.0
+        version: 3.0.0
       vue:
         specifier: 3.4.21
         version: 3.4.21(typescript@5.8.3)
@@ -7030,6 +7033,9 @@ packages:
   utf-8-validate@5.0.10:
     resolution: {integrity: sha512-Z6czzLq4u8fPOyx7TU6X3dvUZVvoJmxSQ+IcrlmagKhilxlhZgxPK6C5Jqbkw1IDUmFTM+cz9QDnnLTwDz/2gQ==}
     engines: {node: '>=6.14.2'}
+
+  utf8@3.0.0:
+    resolution: {integrity: sha512-E8VjFIQ/TyQgp+TZfS6l8yp/xWppSAHzidGiRrqe4bK4XP9pTRyKFgGJpO3SN7zdX4DeomTrwaseCHovfpFcqQ==}
 
   utif@2.0.1:
     resolution: {integrity: sha512-Z/S1fNKCicQTf375lIP9G8Sa1H/phcysstNrrSdZKj1f9g58J4NMgb5IgiEZN9/nLMPDwF0W7hdOe9Qq2IYoLg==}
@@ -16519,6 +16525,8 @@ snapshots:
     dependencies:
       node-gyp-build: 4.8.4
     optional: true
+
+  utf8@3.0.0: {}
 
   utif@2.0.1:
     dependencies:

@@ -119,9 +119,10 @@ async function getLocalStorage() {
 
     accountData.value = usePageStore().accountRes.data || {}
     calendarData.value = usePageStore().calendarRes.data || []
-    calendarPopupHospitalSelect.value = usePageStore().hospitalSelectRes.data || []
+    calendarPopupHospitalSelect.value = usePageStore().hospitalRes.data || []
     calendarPopupDepartmentSelect.value = usePageStore().departmentRes.data || []
-    console.log(accountData.value)
+    console.log('accountData', accountData.value)
+    console.log('calendarData', calendarData?.value)
   }
   catch (error) {
     console.error('没有数据：', error)
@@ -247,9 +248,10 @@ onMounted(() => {
   currentSelectedDate.value.fulldate = currentSelectedDate.value.fullDate
   delete currentSelectedDate.value.fullDate
   pickerData.value = pickerViewData.value
-  console.log('calendar', calendar.value)
 
-  console.log('currentSelectedDate', currentSelectedDate.value)
+  // console.log('calendar', calendar.value)
+
+  // console.log('currentSelectedDate', currentSelectedDate.value)
 })
 </script>
 
@@ -261,74 +263,37 @@ onMounted(() => {
     <view class="border-b border-solid border-gray-200">
       <uni-calendar ref="calendar" :selected="calendarData" @change="selecteDate" />
     </view>
-    <!-- 今日次数 -->
-    <uni-section title="今日访问" type="line" />
     <!-- 卡片展示 -->
-    <uni-card
-      v-for="(item, index) in accountData[currentSelectedDate?.year]?.[currentSelectedDate?.month]?.[currentSelectedDate?.date]?.time"
-      :key="index" :title="item.hospitalName" :sub-title="item.departmentName" class="relative"
-    >
-      <text class="uni-body">{{ item.diary }}</text>
-      <!-- 数据标签 -->
-      <view class="absolute right-6 top-2 grid grid-cols-2 gap-y-1">
-        <view class="diary-tag ">
-          <text class="i-mdi-clock-outline align-middle" />
-          <text class="align-middle">{{ item.time }}</text>
-        </view>
-        <view class="diary-tag">
-          <text class="i-mdi-currency-jpy align-middle" />
-          <text class="align-middle">{{ item.price || 0 }}</text>
-        </view>
-        <!-- 编辑选项 -->
-        <view class="diary-option">
-          <text class=" text-blue-400" @click="togglePopup(calendarPopup, true, item, index)">
-            编辑
-          </text>
-        </view>
-        <view class="diary-option">
-          <text class=" text-red-500" @click="togglePopup(deleteDiaryPopup, true, currentSelectedDate, index)">
-            删除
-          </text>
-        </view>
-      </view>
-    </uni-card>
-    <!-- 表格 -->
-    <!--
-      <uni-table ref="table" border stripe emptyText="暂无数据">
-        <uni-tr>
-          <uni-th
-            v-for="(thItem, thIndex) in tableThOption" :key="thIndex" align="center"
-            :width="uniThWidth(thIndex)"
-          >
-            {{ thItem.title }}
-          </uni-th>
-        </uni-tr>
-        <uni-tr
-          v-for="(trItem, trIndex) in accountData[currentSelectedDate?.year]?.[currentSelectedDate?.month]?.[currentSelectedDate?.date]?.time"
-          :key="trIndex" @click="deleteDiaryDate(currentSelectedDate, trIndex)
-          "
-        >
-          <uni-td>
-            {{ trItem.hospitalName }}
-          </uni-td>
-          <uni-td>
-            {{ trItem.departmentName }}
-          </uni-td>
-          <uni-td>
-            {{ trItem.time }}
-          </uni-td>
-          <uni-td>
-            <button class="tableButton" plain size="mini" type="primary">
-              查看
-            </button>
-          </uni-td>
-          <uni-td>
-            <button class="tableButton" plain size="mini" type="warn" @click="deleteDiaryDate(currentSelectedDate, trIndex)">
+    <scroll-view scroll-y>
+      <uni-card
+        v-for="(item, index) in accountData[currentSelectedDate?.year]?.[currentSelectedDate?.month]?.[currentSelectedDate?.date]?.time"
+        :key="index" :title="item.hospitalName" :sub-title="item.departmentName" class="relative"
+      >
+        <text class="uni-body">{{ item.diary }}</text>
+        <!-- 数据标签 -->
+        <view class="absolute right-6 top-3 grid grid-cols-2 gap-y-1">
+          <view class="diary-tag ">
+            <text class="i-mdi-clock-outline align-middle" />
+            <text class="align-middle">{{ item.time }}</text>
+          </view>
+          <view class="diary-tag">
+            <text class="i-mdi-currency-jpy align-middle" />
+            <text class="align-middle">{{ item.price || 0 }}</text>
+          </view>
+          <!-- 编辑选项 -->
+          <view class="diary-option">
+            <text class=" text-blue-400" @click="togglePopup(calendarPopup, true, item, index)">
+              编辑
+            </text>
+          </view>
+          <view class="diary-option">
+            <text class=" text-red-500" @click="togglePopup(deleteDiaryPopup, true, currentSelectedDate, index)">
               删除
-            </button>
-          </uni-td>
-        </uni-tr>
-      </uni-table> -->
+            </text>
+          </view>
+        </view>
+      </uni-card>
+    </scroll-view>
     <!-- 添加日记弹出框 -->
     <uni-popup
       ref="calendarPopup" type="bottom" background-color="#fff" borderRadius="20px 20px 0 0"
@@ -394,11 +359,11 @@ onMounted(() => {
           </view>
         </picker-view-column>
       </picker-view>
-      <view class="mx-auto flex w-2/3 pb-4 pt-6 text-center ">
-        <button class="mx-auto" plain size="mini" @click="togglePopup(calendarPopup, false)">
+      <view class="button-list">
+        <button class="mx-auto" @click="togglePopup(calendarPopup, false)">
           取消
         </button>
-        <button class="mx-auto" plain size="mini" @click="addDiaryDate(currentSelectedDate)">
+        <button class="mx-auto" @click="addDiaryDate(currentSelectedDate)">
           确定
         </button>
       </view>
@@ -495,5 +460,13 @@ input {
 
 :deep(.uni-combox__selector) {
   @apply z-50 !important;
+}
+
+.button-list {
+  @apply mx-auto flex w-2/3 pb-7 pt-6 text-center;
+
+  button {
+    @apply px-6 py-2 border border-gray-100 shadow shadow-gray-400 rounded;
+  }
 }
 </style>

@@ -8,20 +8,19 @@
   },
   "pages": [ // pages数组中第一项表示应用启动页，参考：https://uniapp.dcloud.io/collocation/pages
     {
-      // "path": "pages/index/index"
-      "path": "pages/account/account"
-    },
-    {
-      "path": "pages/summery/summery"
-    },
-    {
       "path": "pages/index/index"
     },
     {
-      "path": "pages/manage/dataManage"
+      "path": "pages/manage/selectManage"
     },
     {
-      "path": "pages/manage/selectManage"
+      "path": "pages/account/account"
+    },
+    {
+      "path": "pages/summary/summary"
+    },
+    {
+      "path": "pages/manage/dataManage"
     }
 
   ],
@@ -43,7 +42,7 @@
       "selectedIconPath": "static/img/mdi--home-active.png",
       "text": "主页"
     }, {
-      "pagePath": "pages/summery/summery",
+      "pagePath": "pages/summary/summary",
       "iconPath": "static/img/mdi--diary.png",
       "selectedIconPath": "static/img/mdi--diary--active.png",
       "text": "统计"

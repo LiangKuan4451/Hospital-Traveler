@@ -3,13 +3,14 @@ import { defineStore } from 'pinia'
 export const usePageStore = defineStore('page', () => {
   const calendarRes = ref()
   const accountRes = ref()
-  const hospitalSelectRes = ref()
+  const hospitalRes = ref()
   const departmentRes = ref()
+
   async function getLocalStorage() {
     try {
       calendarRes.value = await uni.getStorage({ key: 'calendarData' })
       accountRes.value = await uni.getStorage({ key: 'accountData' })
-      hospitalSelectRes.value = await uni.getStorage({ key: 'hospitals' })
+      hospitalRes.value = await uni.getStorage({ key: 'hospitals' })
       departmentRes.value = await uni.getStorage({ key: 'departments' })
     }
     catch (error) {
@@ -27,7 +28,13 @@ export const usePageStore = defineStore('page', () => {
     const storageTasks = [
       uni.removeStorage({ key: 'calendarData' }),
       uni.removeStorage({ key: 'accountData' }),
+      uni.removeStorage({ key: 'hospitals' }),
+      uni.removeStorage({ key: 'departments' }),
     ]
+    calendarRes.value = {}
+    accountRes.value = {}
+    hospitalRes.value = []
+    departmentRes.value = []
 
     Promise.all(storageTasks).then(() => {
       console.log('Storage cleared successfully')
@@ -36,12 +43,12 @@ export const usePageStore = defineStore('page', () => {
     })
   }
 
-  function setLocalStorage(calendarData, accountData, calendarPopupDepartmentSelect, calendarPopupHospitalSelect) {
+  function setLocalStorage(calendarData, accountData, hospitalRes, departmentRes) {
     const storageTasks = [
       uni.setStorage({ key: 'calendarData', data: calendarData }),
       uni.setStorage({ key: 'accountData', data: accountData }),
-      uni.setStorage({ key: 'departments', data: calendarPopupDepartmentSelect }),
-      uni.setStorage({ key: 'hospitals', data: calendarPopupHospitalSelect }),
+      uni.setStorage({ key: 'hospitals', data: departmentRes }),
+      uni.setStorage({ key: 'departments', data: hospitalRes }),
     ]
 
     Promise.all(storageTasks)
@@ -54,5 +61,5 @@ export const usePageStore = defineStore('page', () => {
       })
   }
 
-  return { reloadPage, clearStorage, setLocalStorage, getLocalStorage, calendarRes, accountRes, hospitalSelectRes, departmentRes }
+  return { reloadPage, clearStorage, setLocalStorage, getLocalStorage, calendarRes, accountRes, hospitalRes, departmentRes }
 })

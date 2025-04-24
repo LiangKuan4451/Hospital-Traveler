@@ -23,7 +23,7 @@ function getLocalStorage() {
 
     accountData.value = usePageStore().accountRes.data
     calendarData.value = usePageStore().calendarRes.data || []
-    calendarPopupHospitalSelect.value = usePageStore().hospitalSelectRes.data || []
+    calendarPopupHospitalSelect.value = usePageStore().hospitalRes.data || []
     calendarPopupDepartmentSelect.value = usePageStore().departmentRes.data || []
     console.log(accountData.value)
   }
@@ -44,7 +44,7 @@ function sumDiaryPrice() {
 
     days.time?.forEach((item: any) => {
       if (item.price) {
-        currentMonthPriceCount.value += item.price
+        currentMonthPriceCount.value += Number(item.price)
       }
     })
   })
@@ -55,7 +55,7 @@ function sumDiaryPrice() {
 
       days.time?.forEach((item: any) => {
         if (item.price) {
-          currentYearPriceCount.value += item.price
+          currentYearPriceCount.value += Number(item.price)
         }
       })
     })
@@ -136,7 +136,7 @@ onMounted(() => {
 }
 
 .summary-card {
-  @apply flex p-4 rounded-lg shadow-md shadow-gray-400 bg-white border-l-4 border-l-green-400 relative overflow-hidden;
+  @apply flex p-4 rounded-lg shadow border border-gray-100 shadow-gray-400 bg-white border-l-4 border-l-green-400 relative overflow-hidden;
 }
 
 .card-icon {
